@@ -1,0 +1,4 @@
+This is a sample document.
+It contains several sentences.
+The script will extract random phrases.
+The goal is to test the functionality of phrase extraction.
