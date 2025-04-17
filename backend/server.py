@@ -11,6 +11,10 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+@app.route("/", methods=["GET"])
+def home():
+    return "✅ Plagiarism Checker API is running", 200
+
 # Upload file route
 @app.route("/upload", methods=["POST"])
 def upload_file():
