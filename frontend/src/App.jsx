@@ -30,14 +30,14 @@ const FileUpload = () => {
       setUploading(true);
 
       // Step 1: Upload the file to Flask backend
-      const uploadResponse = await axios.post("http://localhost:5000/upload", formData, {
+      const uploadResponse = await axios.post("https://plag-backend.onrender.com/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       toast.success(uploadResponse.data.message || "File uploaded successfully!");
 
       // Step 2: Perform plagiarism check
-      const plagiarismResponse = await axios.post("http://localhost:5000/check-plagiarism", formData, {
+      const plagiarismResponse = await axios.post("https://plag-backend.onrender.com/check-plagiarism", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
