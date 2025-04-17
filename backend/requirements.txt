@@ -1,5 +1,6 @@
-flask
+Flask
 flask-cors
 beautifulsoup4
 requests
-python-docx  # For .docx files
+python-docx
+PyPDF2
