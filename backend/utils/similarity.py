@@ -1,45 +1,50 @@
-import json
+import requests
+from bs4 import BeautifulSoup
 from difflib import SequenceMatcher
+import json
+import os
 
-def calculate_similarity(original_phrases, scraped_contents):
-    matched = []
-    for phrase in original_phrases:
-        for url, content in scraped_contents.items():
-            similarity = SequenceMatcher(None, phrase.lower(), content.lower()).ratio()
-            if similarity > 0.8:  # 80% match threshold
-                matched.append({
+def fetch_page_text(url):
+    try:
+        response = requests.get(url, timeout=10)
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Remove scripts/styles and return plain text
+        for script in soup(["script", "style"]):
+            script.decompose()
+        return soup.get_text(separator=" ", strip=True)
+
+    except Exception as e:
+        print(f"Failed to fetch {url}: {e}")
+        return ""
+
+def calculate_similarity(phrases, scraped_results, threshold=0.7, output_path="backend/utils/matched_results.json"):
+    matched_data = []
+
+    for phrase in phrases:
+        urls = scraped_results.get(phrase, [])
+        for url in urls:
+            page_text = fetch_page_text(url)
+            similarity = SequenceMatcher(None, phrase.lower(), page_text.lower()).ratio()
+            if similarity >= threshold:
+                matched_data.append({
                     "phrase": phrase,
-                    "match": content,
                     "url": url,
-                    "similarity": round(similarity * 100, 2)
+                    "similarity": round(similarity, 2)
                 })
-    return matched
 
-# Test the script
-def test_similarity():
-    # Load phrases from phrases.json
-    with open("phrases.json", "r", encoding="utf-8") as f:
-        original_phrases = json.load(f)
+    # Save matched results to JSON
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(matched_data, f, indent=4)
 
-    # Sample scraped contents
-    scraped_contents = {
-        "https://example.com/page1": "This is a sample document. It contains several sentences.",
-        "https://example.com/page2": "The goal is to test the functionality of phrase extraction and matching.",
-        "https://example.com/page3": "Random phrases are extracted from the document, including testing phrases."
-    }
+    print(f"Matched results saved to {output_path}")
+    return matched_data
 
-    # Calculate similarity
-    matched = calculate_similarity(original_phrases, scraped_contents)
-    
-    # Print the results
-    if matched:
-        for match in matched:
-            print(f"Phrase: {match['phrase']}")
-            print(f"Matched content: {match['match']}")
-            print(f"URL: {match['url']}")
-            print(f"Similarity: {match['similarity']}%\n")
-    else:
-        print("No matches found.")
-
-# Run the test
-test_similarity()
+# Example test (optional for debugging)
+# if __name__ == "__main__":
+#     with open("backend/utils/phrases.json", "r", encoding="utf-8") as f:
+#         phrases = json.load(f)
+#     with open("backend/utils/scraped_results.json", "r", encoding="utf-8") as f:
+#         scraped_results = json.load(f)
+#     calculate_similarity(phrases, scraped_results)

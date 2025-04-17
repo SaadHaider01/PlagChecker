@@ -1947,19 +1947,19 @@ prag-check
 │     ├─ pip3.exe
 │     ├─ python.exe
 │     └─ pythonw.exe
-├─ backend
-│  ├─ app.py
-│  ├─ requirements.txt
-│  ├─ server.py
-│  ├─ test_document.txt
-│  ├─ uploads
-│  │  └─ pcafinal.pdf
-│  └─ utils
-│     ├─ extract.py
-│     ├─ phrases.json
-│     ├─ process.py
-│     ├─ scraper.py
-│     └─ similarity.py
+    ├─ backend
+    │  ├─ app.py
+    │  ├─ requirements.txt
+    │  ├─ server.py
+    │  ├─ test_document.txt
+    │  ├─ uploads
+    │  │  └─ pcafinal.pdf
+    │  └─ utils
+    │     ├─ extract.py
+    │     ├─ phrases.json
+    │     ├─ process.py
+    │     ├─ scraper.py
+    │     └─ similarity.py
 ├─ frontend
 │  ├─ .env
 │  ├─ eslint.config.js

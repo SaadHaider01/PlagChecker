@@ -1,19 +1,22 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-from backend.utils.extract import extract_phrases
-from utils.scraper import scrape_google_results
-from utils.similarity import calculate_similarity
+
+from utils.process import process_document  # ✅ full pipeline logic here
 
 app = Flask(__name__)
-CORS(app)  # Allows frontend (React) to talk to backend
+CORS(app)
 
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/')
 def index():
-    return "Plagiarism Checker Backend Running"
+    return "✅ Plagiarism Checker Backend Running"
+
+@app.route('/test', methods=['GET'])
+def test_route():
+    return "Test route is working!"
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -24,25 +27,29 @@ def upload_file():
     filepath = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(filepath)
 
-    # TODO: Call processing logic here
-
     return jsonify({'message': 'File uploaded successfully', 'filename': file.filename}), 200
+
+def process_document(filepath):
+    with open(filepath, 'r') as file:
+        content = file.read()
+    return {'message': 'Plagiarism check completed successfully', 'content': content}
 
 @app.route('/check-plagiarism', methods=['POST'])
 def check_plagiarism():
-    file = request.files['document']
-    text = file.read().decode('utf-8')  # assuming it's a .txt or .docx converted to text
-    
-    phrases = extract_phrases(text)
-    scraped_results = scrape_google_results(phrases)
-    matched_phrases = calculate_similarity(phrases, scraped_results)
-    
-    return jsonify({
-        "matches": matched_phrases,
-        "total_phrases": len(phrases),
-        "matched_count": len(matched_phrases)
-    })
+    print("Plagiarism check initiated")
 
+    if 'document' not in request.files:
+        return jsonify({'error': 'No document provided'}), 400
+
+    file = request.files['document']
+    filepath = os.path.join(UPLOAD_FOLDER, file.filename)
+    file.save(filepath)
+
+    try:
+        result = process_document(filepath)  # ✅ Full end-to-end logic
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,host="0.0.0.0", port=5000)

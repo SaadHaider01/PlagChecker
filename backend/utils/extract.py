@@ -31,7 +31,10 @@ def get_random_phrases(text, min_words=5, max_words=10, num_phrases=10):
         phrases.append(" ".join(words[start:end]))
     return phrases
 
-def extract_phrases(file_path, output_path="phrases.json"):
+def extract_phrases(file_path, output_path="D:/prag-check/backend/utils/phrases.json"):
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
     ext = os.path.splitext(file_path)[1].lower()
     if ext == ".docx":
         text = extract_text_from_docx(file_path)
@@ -43,13 +46,9 @@ def extract_phrases(file_path, output_path="phrases.json"):
         raise ValueError("Unsupported file type: must be .docx, .pdf or .txt")
 
     phrases = get_random_phrases(text)
+    
+    # Save phrases to the specified output path
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(phrases, f, indent=4)
-    print(f"Extracted phrases saved to {output_path}")
 
-print("Script executed successfully!")
-
-file_path = "d:/prag-check/backend/test_document.txt"  # Use a .docx or .pdf file path here
-extract_phrases(file_path)
-# Example usage:
-# extract_phrases("path/to/your/document.docx")
+    return phrases
